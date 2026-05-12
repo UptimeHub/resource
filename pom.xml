@@ -11,6 +11,14 @@
         <relativePath/>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/UptimeHub/core</url>
+        </repository>
+    </repositories>
+
     <groupId>uz.uptimehub</groupId>
     <artifactId>resource-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
