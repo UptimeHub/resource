@@ -19,7 +19,6 @@ import uz.uptimehub.resourceapp.jpa.entity.UserAuditableEntity;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Category extends UserAuditableEntity {
 
     @Id
