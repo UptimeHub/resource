@@ -11,7 +11,10 @@ import uz.uptimehub.resourceapp.jpa.entity.UserAuditableEntity;
 
 
 @Entity
-@Table(name = "category")
+@Table(name = "category", indexes = {
+        @Index(name = "idx_category_name", columnList = "name", unique = true),
+        @Index(name = "idx_category_status", columnList = "status")
+})
 @Getter
 @Setter
 @AllArgsConstructor
