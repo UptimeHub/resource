@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/resource/category")
 @RequiredArgsConstructor
 public class CategoryController {
 

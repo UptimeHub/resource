@@ -9,7 +9,7 @@ import uz.uptimehub.resourceapp.jpa.entity.category.Category;
 public interface CategoryMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", defaultExpression = "java(uz.uptimehub.resource.dto.Status.NOT_PUBLISHED)")
+    @Mapping(target = "status", expression = "java(uz.uptimehub.resource.dto.Status.NOT_PUBLISHED)")
     Category fromRequest(CategoryCreateRequest categoryCreateRequest);
 
 

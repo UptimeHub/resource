@@ -1,3 +1,20 @@
 spring:
   application:
     name: resource-app
+  config:
+    import:
+      - optional:file:.env[.properties]
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+
+springdoc:
+  swagger-ui:
+    enabled: false
+    oauth:
+      client-id: frontend-client
+      use-pkce-with-authorization-code-grant: true
+      scopes: openid profile email
+
+server:
+  port: 8082
