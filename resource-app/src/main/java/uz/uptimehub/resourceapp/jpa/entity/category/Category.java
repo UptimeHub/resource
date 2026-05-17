@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.uptimehub.resourceapp.jpa.entity.Status;
+import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resourceapp.jpa.entity.UserAuditableEntity;
 
 

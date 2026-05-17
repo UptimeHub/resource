@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import uz.uptimehub.resourceapp.jpa.entity.Status;
+import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resourceapp.jpa.entity.UserAuditableEntity;
 import uz.uptimehub.resourceapp.jpa.entity.category.Category;
 
