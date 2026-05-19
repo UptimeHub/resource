@@ -10,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resourceapp.jpa.entity.UserAuditableEntity;
 import uz.uptimehub.resourceapp.jpa.entity.category.Category;
+import uz.uptimehub.resource.dto.resourcetype.SpecificationDefinition;
 
 import java.util.List;
 

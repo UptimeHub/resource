@@ -1,4 +1,4 @@
-package uz.uptimehub.resourceapp.jpa.entity.resource;
+package uz.uptimehub.resource.dto.resourcetype;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

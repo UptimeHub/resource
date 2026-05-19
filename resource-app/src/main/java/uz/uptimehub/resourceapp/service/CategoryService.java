@@ -2,12 +2,14 @@ package uz.uptimehub.resourceapp.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.uptimehub.core.exception.EntityNotFoundException;
 import uz.uptimehub.core.exception.InvalidSortRule;
 import uz.uptimehub.core.pagination.FilteredSortedPaginatedRequest;
+import uz.uptimehub.core.utils.AuthHeaderUtils;
 import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resource.dto.category.CategoryCreateRequest;
 import uz.uptimehub.resource.dto.category.CategoryDto;
@@ -21,6 +23,9 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
+
+    @Value( "${custom-header-names.auth.permissions}")
+    private String permissionsHeader;
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -51,7 +56,7 @@ public class CategoryService {
     }
 
     public Map<String, Set<String>> getFiltersMap(HttpServletRequest request) {
-        String[] permissions = extractPermissions(request);
+        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
         Status status = null;
 
         Set<String> statuses = new HashSet<>();
@@ -70,20 +75,11 @@ public class CategoryService {
     }
 
     public void statusOverride(HttpServletRequest request, CategoryFilter filter) {
-        String[] permissions = extractPermissions(request);
+        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
 
         if (!Arrays.asList(permissions).contains("resource-category:manage")) {
             filter.setStatus(Status.PUBLISHED);
         }
     }
 
-    private String[] extractPermissions(HttpServletRequest request) {
-        String header = request.getHeader("X-Auth-Permissions");
-
-        if (header == null) {
-            return new String[0];
-        }
-
-        return header.split(",");
-    }
 }
