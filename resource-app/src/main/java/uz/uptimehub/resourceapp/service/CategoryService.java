@@ -22,7 +22,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService {
+public class CategoryService extends CommonService<CategoryCreateRequest, CategoryDto, CategoryFilter>{
 
     @Value( "${custom-header-names.auth.permissions}")
     private String permissionsHeader;
@@ -31,11 +31,12 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
 
+    @Override
     public CategoryDto create(CategoryCreateRequest categoryCreateRequest) {
         return categoryMapper.toDto(categoryRepository.save(categoryMapper.fromRequest(categoryCreateRequest)));
     }
 
-    @Transactional
+    @Override
     public void update(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryDto.id())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + categoryDto.id()));
@@ -45,6 +46,7 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    @Override
     public Page<CategoryDto> findAll(FilteredSortedPaginatedRequest<CategoryFilter, InvalidSortRule> request) {
         return categoryRepository.findAllFiltered(
                 request.getFilter().getId(),
