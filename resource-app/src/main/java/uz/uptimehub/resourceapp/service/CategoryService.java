@@ -24,8 +24,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CategoryService extends CommonService<CategoryCreateRequest, CategoryDto, CategoryFilter>{
 
-    @Value( "${custom-header-names.auth.permissions}")
-    private String permissionsHeader;
+
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;

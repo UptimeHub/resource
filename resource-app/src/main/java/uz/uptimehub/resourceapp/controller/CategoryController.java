@@ -2,6 +2,7 @@ package uz.uptimehub.resourceapp.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -26,13 +27,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public CategoryDto createCategory(CategoryCreateRequest request) {
+    public CategoryDto createCategory(@Valid CategoryCreateRequest request) {
         return categoryService.create(request);
     }
 
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCategory(CategoryDto request) {
+    public void updateCategory(@Valid CategoryDto request) {
         categoryService.update(request);
     }
 
