@@ -23,14 +23,14 @@ public interface ResourceTypeRepository extends JpaRepository<ResourceType, Long
                 select rt from ResourceType rt
                 left join rt.category c
                 where (:id is null or rt.id = :id)
-                and (:name is null or lower(rt.name) like lower(concat('%', :name, '%')))
+                and (:name is null or :name = '' or lower(rt.name) like lower(concat('%', :name, '%')))
                 and (:status is null or rt.status = :status)
                 and (:categoryId is null or c.id = :categoryId)
             """)
     Page<ResourceType> findAllFiltered(
             Long id,
             String name,
-            String status,
+            Status status,
             Long categoryId,
             Pageable pageable
     );

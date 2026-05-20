@@ -60,7 +60,7 @@ public class ResourceTypeService extends CommonService<ResourceTypeCreateRequest
         return resourceTypeRepository.findAllFiltered(
                 filter.getFilter().getId(),
                 filter.getFilter().getName(),
-                filter.getFilter().getStatus() != null ? filter.getFilter().getStatus().name() : null,
+                filter.getFilter().getStatus(),
                 filter.getFilter().getCategoryId(),
                 filter.getPageable()
         ).map(resourceTypeMapper::toDto);

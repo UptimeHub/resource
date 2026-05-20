@@ -27,7 +27,7 @@ public class ResourceTypeController {
     private final ResourceTypeService resourceTypeService;
 
     @PostMapping
-    public ResourceTypeDto create(@Valid ResourceTypeCreateRequest request) {
+    public ResourceTypeDto create(@Valid @RequestBody ResourceTypeCreateRequest request) {
         return resourceTypeService.create(request);
     }
 
