@@ -2,10 +2,8 @@ package uz.uptimehub.resourceapp.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uz.uptimehub.core.exception.EntityNotFoundException;
 import uz.uptimehub.core.exception.InvalidSortRule;
 import uz.uptimehub.core.pagination.FilteredSortedPaginatedRequest;
