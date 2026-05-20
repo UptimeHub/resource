@@ -39,6 +39,10 @@ public class Resource extends UserAuditableEntity {
     @Enumerated(EnumType.STRING)
     private ResourceStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_id", nullable = false)
+    private ResourceType resourceType;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "custom_characteristics", columnDefinition = "jsonb")
     private Map<String, String> customCharacteristics = new HashMap<>();
