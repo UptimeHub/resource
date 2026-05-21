@@ -8,7 +8,6 @@ import lombok.Setter;
 import uz.uptimehub.core.pagination.Filter;
 import uz.uptimehub.core.pagination.IdPropertyOverride;
 import uz.uptimehub.core.pagination.SortPropertyOverride;
-import uz.uptimehub.resource.dto.Status;
 
 import java.util.UUID;
 
