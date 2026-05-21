@@ -11,7 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class DetailedResourceResponse extends ResourceDto {
-    private ResourceStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UUID createdBy;

@@ -15,6 +15,7 @@ public class ResourceDto {
     UUID organizationId;
     String name;
     String description;
+    ResourceStatus status;
     Long resourceTypeId;
     Map<String, String> customCharacteristics;
     Map<String, Object> specificationValues;
