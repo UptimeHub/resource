@@ -1,7 +1,6 @@
 package uz.uptimehub.resourceapp.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import uz.uptimehub.resource.dto.resource.DetailedResourceResponse;
 import uz.uptimehub.resource.dto.resource.ResourceCreateRequest;
 import uz.uptimehub.resource.dto.resource.ResourceDto;
@@ -19,6 +18,10 @@ public interface ResourceMapper {
     @Mapping(target = "description", expression = "java(request.description())")
     @Mapping(target = "resourceType", expression = "java(resourceType)")
     Resource toEntity(ResourceCreateRequest request, ResourceType resourceType);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "resourceType", ignore = true)
+    Resource updateFromDto(ResourceDto resourceDto, @MappingTarget Resource resource);
 
     @Mapping(target = "resourceTypeId", source = "resourceType.id")
     ResourceDto toDto(Resource resource);

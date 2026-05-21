@@ -12,6 +12,9 @@ public abstract class CommonService<R, E, F extends Filter> {
     @Value( "${custom-header-names.auth.permissions}")
     String permissionsHeader;
 
+    @Value( "${custom-header-names.auth.roles}")
+    String roleHeader;
+
     public abstract E create(R request);
 
     @Transactional

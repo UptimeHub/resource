@@ -23,3 +23,5 @@ custom-header-names:
   auth:
     permissions:
       "X-Auth-Permissions"
+    roles:
+      "X-Auth-Roles"

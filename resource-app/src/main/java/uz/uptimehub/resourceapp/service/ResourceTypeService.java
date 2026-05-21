@@ -67,7 +67,7 @@ public class ResourceTypeService extends CommonService<ResourceTypeCreateRequest
     }
 
     public Map<String, Set<String>> getFiltersMap(HttpServletRequest request) {
-        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
+        String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
         Status status = null;
 
         Set<String> statuses = new HashSet<>();
@@ -86,7 +86,7 @@ public class ResourceTypeService extends CommonService<ResourceTypeCreateRequest
     }
 
     public void statusOverride(HttpServletRequest request, ResourceTypeFilter filter) {
-        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
+        String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
 
         if (!Arrays.asList(permissions).contains("resource-type:manage")) {
             filter.setStatus(Status.PUBLISHED);

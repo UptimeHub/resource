@@ -55,7 +55,7 @@ public class CategoryService extends CommonService<CategoryCreateRequest, Catego
     }
 
     public Map<String, Set<String>> getFiltersMap(HttpServletRequest request) {
-        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
+        String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
         Status status = null;
 
         Set<String> statuses = new HashSet<>();
@@ -74,7 +74,7 @@ public class CategoryService extends CommonService<CategoryCreateRequest, Catego
     }
 
     public void statusOverride(HttpServletRequest request, CategoryFilter filter) {
-        String[] permissions = AuthHeaderUtils.extractPermissions(request.getHeader(permissionsHeader));
+        String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
 
         if (!Arrays.asList(permissions).contains("resource-category:manage")) {
             filter.setStatus(Status.PUBLISHED);

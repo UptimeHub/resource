@@ -1,6 +1,10 @@
 package uz.uptimehub.resource.dto.resource;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uz.uptimehub.core.pagination.Filter;
 import uz.uptimehub.core.pagination.IdPropertyOverride;
 import uz.uptimehub.core.pagination.SortPropertyOverride;
@@ -10,6 +14,10 @@ import java.util.UUID;
 
 @Schema(description = "Filter criteria for querying resources")
 @IdPropertyOverride("r.id")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResourceFilter extends Filter {
     @Schema(description = "Resource ID to filter by a specific resource")
     private UUID id;
@@ -24,5 +32,5 @@ public class ResourceFilter extends Filter {
     private Long resourceTypeId;
     @Schema(description = "Resource status to filter resources by their status")
     @SortPropertyOverride("r.status")
-    private Status status;
+    private ResourceStatus status;
 }

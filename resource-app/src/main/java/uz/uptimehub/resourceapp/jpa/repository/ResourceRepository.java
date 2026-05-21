@@ -9,6 +9,7 @@ import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resource.dto.resource.ResourceStatus;
 import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,13 +30,10 @@ public interface ResourceRepository extends JpaRepository<Resource, UUID> {
             UUID organizationId,
             String name,
             Long resourceTypeId,
-            Status status,
+            ResourceStatus status,
             Pageable pageable
     );
 
-        @Query("""
-                select distinct r.name from Resource r
-                    where (:status is null or r.status = :status)
-                """)
-        Set<String> findAllNames(ResourceStatus status);
+
+        Optional<Resource> findByIdAndOrganizationId(UUID id, UUID organizationId);
 }
