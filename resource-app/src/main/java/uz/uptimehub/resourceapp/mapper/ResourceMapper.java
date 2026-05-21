@@ -14,12 +14,11 @@ import java.util.UUID;
 public interface ResourceMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "organizationId", expression = "java(organizationId)")
     @Mapping(target = "status", expression = "java(uz.uptimehub.resource.dto.resource.ResourceStatus.NOT_PUBLISHED)")
     @Mapping(target = "name", expression = "java(request.name())")
     @Mapping(target = "description", expression = "java(request.description())")
     @Mapping(target = "resourceType", expression = "java(resourceType)")
-    Resource toEntity(ResourceCreateRequest request, ResourceType resourceType, UUID organizationId);
+    Resource toEntity(ResourceCreateRequest request, ResourceType resourceType);
 
     @Mapping(target = "resourceTypeId", source = "resourceType.id")
     ResourceDto toDto(Resource resource);
