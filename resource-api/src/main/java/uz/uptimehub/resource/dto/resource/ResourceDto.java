@@ -8,7 +8,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Data transfer object representing a resource with its basic information")

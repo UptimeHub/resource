@@ -10,7 +10,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Schema(description = "Detailed response object for a resource, including audit information")
 public class DetailedResourceResponse extends ResourceDto {
     @Schema(description = "Timestamp when the resource was created", example = "2024-01-01T12:00:00")
