@@ -23,7 +23,7 @@ public class ResourceCreateRequest {
         @Schema(description = "Description of the resource")
         private String description;
         @Schema(description = "ID of the resource type")
-        @NotBlank(message = "Resource type ID is required")
+        @NotNull(message = "Resource type ID is required")
         private Long resourceTypeId;
         @Schema(description = "ID of the organization to which the resource belongs")
         @NotNull(message = "Organization ID is required")

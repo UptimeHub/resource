@@ -74,6 +74,8 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         Resource resource = resourceRepository.findByIdAndOrganizationId(resourceData.getId(), resourceData.getOrganizationId())
                 .orElseThrow(() -> new EntityNotFoundException("Resource not found with id: " + resourceData.getId()));
 
+        assertRequiredSpecificationsExistence(resourceData, resource.getResourceType().getSpecificationDefinitions());
+
         resourceRepository.save(resourceMapper.updateFromDto(resourceData, resource));
     }
 
@@ -148,9 +150,19 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
 
         String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
 
+
+
         List<String> list = Arrays.asList(permissions);
         if (!list.contains("resource:view-all") || !list.contains("resource:manage")) {
             filter.setStatus(ResourceStatus.PUBLISHED);
+            return;
+        }
+
+        // Organization override for organization admins to view their own resources with restricted statuses
+        String sessionUserOrgId = request.getHeader("X-Organization-Id");
+
+        if (sessionUserOrgId != null && filter.getOrganizationId() != null) {
+            filter.setOrganizationId(UUID.fromString(sessionUserOrgId));
         }
     }
 
@@ -171,6 +183,20 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
      * @see SpecificationDefinition#getRequired()
      * @see RequiredSpecificationNotAvailableException */
     private void assertRequiredSpecificationsExistence(ResourceCreateRequest request, List<SpecificationDefinition> specificationDefinitions) {
+
+        Set<String> requiredSpecs = specificationDefinitions.stream()
+                .filter(SpecificationDefinition::getRequired)
+                .map(SpecificationDefinition::getName)
+                .collect(Collectors.toSet());
+
+        requiredSpecs.forEach(spec -> {
+            if (!request.getSpecificationValues().containsKey(spec))
+                throw new RequiredSpecificationNotAvailableException("Missing required specification: " + spec);
+        });
+
+    }
+
+    private void assertRequiredSpecificationsExistence(ResourceDto request, List<SpecificationDefinition> specificationDefinitions) {
 
         Set<String> requiredSpecs = specificationDefinitions.stream()
                 .filter(SpecificationDefinition::getRequired)
