@@ -101,6 +101,13 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         ).map(resourceMapper::toDto);
     }
 
+
+    public ResourceDto getById(UUID resourceId) {
+        return resourceRepository.findById(resourceId)
+                .map(resourceMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Resource not found with id: " + resourceId));
+    }
+
     /**
      * Overrides organization id on create requests using the authenticated header
      * ({@code X-Organization-Id}).
@@ -209,6 +216,5 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         });
 
     }
-
 
 }

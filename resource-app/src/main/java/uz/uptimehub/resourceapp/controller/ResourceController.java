@@ -1,5 +1,6 @@
 package uz.uptimehub.resourceapp.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -16,6 +17,8 @@ import uz.uptimehub.resource.dto.resource.ResourceCreateRequest;
 import uz.uptimehub.resource.dto.resource.ResourceDto;
 import uz.uptimehub.resource.dto.resource.ResourceFilter;
 import uz.uptimehub.resourceapp.service.ResourceService;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,5 +51,11 @@ public class ResourceController {
     ) {
         resourceService.statusOverride(request, filter);
         return resourceService.findAll(new FilteredSortedPaginatedRequest<>(filter, pageable, InvalidSortRule::new));
+    }
+
+    @Hidden
+    @GetMapping("/{resourceId}")
+    public ResourceDto getById(@PathVariable UUID resourceId) {
+        return resourceService.getById(resourceId);
     }
 }
