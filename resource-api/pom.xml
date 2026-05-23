@@ -8,6 +8,7 @@
     </parent>
     <artifactId>resource-api</artifactId>
     <packaging>jar</packaging>
+    <version>0.0.1</version>
 
     <properties>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
@@ -51,7 +52,7 @@
         <dependency>
             <groupId>uz.uptimehub</groupId>
             <artifactId>core-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.4</version>
         </dependency>
     </dependencies>
 

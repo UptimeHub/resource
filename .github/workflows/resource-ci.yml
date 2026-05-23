@@ -1,0 +1,28 @@
+name: Resource Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - "resource-app/**"
+      - "resource-api/**"
+      - "pom.xml"
+      - "Dockerfile"
+      - ".github/workflows/resource-ci.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  resource-app:
+    uses: UptimeHub/infra/.github/workflows/java-service-ci.yml@main
+    with:
+      java-version: '25'
+      working-directory: '.'
+      image-name: 'resource-app'
+      dockerfile: './Dockerfile'
+      docker-context: '.'
+      publish-image: ${{ github.event_name == 'push' }}

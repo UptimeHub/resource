@@ -1,0 +1,24 @@
+name: Publish Resource API
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - "resource-api/**"
+      - "pom.xml"
+      - ".github/workflows/resource-api-publish.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+    publish-resource-api:
+        name: Publish Resource API
+        uses: UptimeHub/infra/.github/workflows/maven-package-publish.yml@main
+        with:
+          java-version: '25'
+          working-directory: 'resource-api'
+          module: '.'
