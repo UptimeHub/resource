@@ -34,7 +34,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok.version>1.18.46</lombok.version>
         <springdoc.version>3.0.3</springdoc.version>
-        <core-api.version>0.0.5</core-api.version>
+        <core-api.version>0.0.6</core-api.version>
     </properties>
 
     <distributionManagement>
