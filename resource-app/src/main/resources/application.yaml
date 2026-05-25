@@ -25,3 +25,7 @@ custom-header-names:
       "X-Auth-Permissions"
     roles:
       "X-Auth-Roles"
+
+services:
+  resource:
+    url: ${RESOURCE_SERVICE_URL:http://localhost:8082}

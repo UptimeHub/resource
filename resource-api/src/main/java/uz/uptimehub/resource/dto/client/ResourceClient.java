@@ -7,7 +7,7 @@ import uz.uptimehub.resource.dto.resource.ResourceDto;
 
 import java.util.UUID;
 
-@FeignClient(name = "resource-service", path = "/api/resource")
+@FeignClient(name = "resource-service", url = "${services.resource.url}", path = "/api/resource")
 public interface ResourceClient {
 
     @GetMapping("/{resourceId}")
