@@ -18,6 +18,8 @@ jobs:
     publish-resource-api:
         name: Publish Resource API
         uses: UptimeHub/infra/.github/workflows/maven-package-publish.yml@main
+        secrets:
+          maven-packages-token: ${{ secrets.MAVEN_PACKAGES_TOKEN }}
         with:
           java-version: '25'
           working-directory: 'resource-api'
