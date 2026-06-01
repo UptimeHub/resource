@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uz.uptimehub.core.dto.ErrorResponse;
 import uz.uptimehub.core.exception.BadRequestException;
 import uz.uptimehub.core.exception.EntityAlreadyExistsException;
@@ -131,6 +132,17 @@ public class GlobalExceptionHandler {
                 "Required Specifications are not provided",
                 ex.getMessage(),
                 null,
+                null
+        );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(HttpServletRequest request) {
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                "NOT_FOUND",
+                "Resource not found",
+                request.getRequestURI(),
                 null
         );
     }
