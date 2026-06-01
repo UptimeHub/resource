@@ -22,6 +22,15 @@ springdoc:
       use-pkce-with-authorization-code-grant: true
       scopes: openid profile email
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 server:
   port: 8082
 
