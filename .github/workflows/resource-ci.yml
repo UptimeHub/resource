@@ -19,8 +19,7 @@ permissions:
 jobs:
   resource-app:
     uses: UptimeHub/infra/.github/workflows/java-service-ci.yml@main
-    secrets:
-      maven-packages-token: ${{ secrets.MAVEN_PACKAGES_TOKEN }}
+    secrets: inherit
     with:
       java-version: '25'
       working-directory: '.'
@@ -28,3 +27,13 @@ jobs:
       dockerfile: './Dockerfile'
       docker-context: '.'
       publish-image: ${{ github.event_name == 'push' }}
+      deploy: ${{ github.event_name == 'push' }}
+      deploy-container-name: 'resource'
+      deploy-image-name: 'ghcr.io/uptimehub/resource'
+      deploy-run-options: >-
+        --restart unless-stopped
+        --network infra_booking-network
+        -p 8082:8082
+        --env-file /opt/uptimehub/env/resource.env
+      deploy-healthcheck-url: http://localhost:8082/actuator/health
+      deploy-healthcheck-timeout-seconds: 90

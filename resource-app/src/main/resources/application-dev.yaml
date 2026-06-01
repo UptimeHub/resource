@@ -1,10 +1,4 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:resource_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:0909}
-    driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
