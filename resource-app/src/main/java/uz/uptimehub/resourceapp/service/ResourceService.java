@@ -74,7 +74,11 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         Resource resource = resourceRepository.findByIdAndOrganizationId(resourceData.getId(), resourceData.getOrganizationId())
                 .orElseThrow(() -> new EntityNotFoundException("Resource not found with id: " + resourceData.getId()));
 
-        assertRequiredSpecificationsExistence(resourceData, resource.getResourceType().getSpecificationDefinitions());
+        Map<String, Object> specificationValues = resourceData.getSpecificationValues() == null
+                ? resource.getSpecificationValues()
+                : resourceData.getSpecificationValues();
+
+        assertRequiredSpecificationsExistence(specificationValues, resource.getResourceType().getSpecificationDefinitions());
 
         resourceRepository.save(resourceMapper.updateFromDto(resourceData, resource));
     }
@@ -141,36 +145,28 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
     /**
      * Applies status visibility rules to list filters based on caller permissions.
      *
-     * <p>If the request does not contain both management/view permissions, the incoming status filter
-     * is constrained to {@link ResourceStatus#PUBLISHED}. The current implementation also allows explicit
-     * {@link ResourceStatus#MAINTENANCE} and {@link ResourceStatus#ARCHIVED} values to pass through unchanged.
+     * <p>Platform managers with both management/view permissions can query across all organizations and
+     * statuses. Organization managers are constrained to their authenticated organization while retaining
+     * access to non-public statuses. Other callers are constrained to {@link ResourceStatus#PUBLISHED}.
      *
      * @param request the HTTP request containing user permissions in headers
      * @param filter the ResourceFilter whose status may be overridden based on user permissions
      */
     public void statusOverride(HttpServletRequest request, ResourceFilter filter) {
-        ResourceStatus status = filter.getStatus();
-
-        if (status == ResourceStatus.PUBLISHED || status == ResourceStatus.MAINTENANCE || status == ResourceStatus.ARCHIVED) {
-            return;
-        }
-
         String[] permissions = AuthHeaderUtils.extractRolesOrPermissions(request.getHeader(permissionsHeader));
-
-
-
         List<String> list = Arrays.asList(permissions);
-        if (!list.contains("resource:view-all") || !list.contains("resource:manage")) {
-            filter.setStatus(ResourceStatus.PUBLISHED);
+
+        if (list.contains("resource:view-all") && list.contains("resource:manage")) {
             return;
         }
 
-        // Organization override for organization admins to view their own resources with restricted statuses
         String sessionUserOrgId = request.getHeader("X-Organization-Id");
-
-        if (sessionUserOrgId != null && filter.getOrganizationId() != null) {
+        if (list.contains("resource:manage") && sessionUserOrgId != null && !sessionUserOrgId.isBlank()) {
             filter.setOrganizationId(UUID.fromString(sessionUserOrgId));
+            return;
         }
+
+        filter.setStatus(ResourceStatus.PUBLISHED);
     }
 
     /**
@@ -191,27 +187,23 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
      * @see RequiredSpecificationNotAvailableException */
     private void assertRequiredSpecificationsExistence(ResourceCreateRequest request, List<SpecificationDefinition> specificationDefinitions) {
 
-        Set<String> requiredSpecs = specificationDefinitions.stream()
-                .filter(SpecificationDefinition::getRequired)
-                .map(SpecificationDefinition::getName)
-                .collect(Collectors.toSet());
-
-        requiredSpecs.forEach(spec -> {
-            if (!request.getSpecificationValues().containsKey(spec))
-                throw new RequiredSpecificationNotAvailableException("Missing required specification: " + spec);
-        });
-
+        assertRequiredSpecificationsExistence(request.getSpecificationValues(), specificationDefinitions);
     }
 
-    private void assertRequiredSpecificationsExistence(ResourceDto request, List<SpecificationDefinition> specificationDefinitions) {
+    private void assertRequiredSpecificationsExistence(Map<String, Object> specificationValues, List<SpecificationDefinition> specificationDefinitions) {
+        List<SpecificationDefinition> definitions = specificationDefinitions == null
+                ? Collections.emptyList()
+                : specificationDefinitions;
 
-        Set<String> requiredSpecs = specificationDefinitions.stream()
-                .filter(SpecificationDefinition::getRequired)
+        Set<String> requiredSpecs = definitions.stream()
+                .filter(specificationDefinition -> Boolean.TRUE.equals(specificationDefinition.getRequired()))
                 .map(SpecificationDefinition::getName)
                 .collect(Collectors.toSet());
 
+        Map<String, Object> values = specificationValues == null ? Collections.emptyMap() : specificationValues;
+
         requiredSpecs.forEach(spec -> {
-            if (!request.getSpecificationValues().containsKey(spec))
+            if (!values.containsKey(spec))
                 throw new RequiredSpecificationNotAvailableException("Missing required specification: " + spec);
         });
 
