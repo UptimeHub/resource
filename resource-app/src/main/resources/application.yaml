@@ -13,6 +13,8 @@ spring:
     password: ${DB_PASSWORD:0909}
     driver-class-name: org.postgresql.Driver
 
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
   kafka:
     bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
     producer:
