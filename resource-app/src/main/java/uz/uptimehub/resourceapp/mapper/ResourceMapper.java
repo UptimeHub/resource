@@ -9,7 +9,7 @@ import uz.uptimehub.resourceapp.jpa.document.ResourceDocument;
 import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 import uz.uptimehub.resourceapp.jpa.entity.resource.ResourceType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public interface ResourceMapper {
                 .customCharacteristics(resource.getCustomCharacteristics())
                 .specificationValues(resource.getSpecificationValues())
                 .searchableText(buildSearchableText(resource))
-                .indexedAt(LocalDateTime.now())
+                .indexedAt(Instant.now())
                 .build();
     }
 

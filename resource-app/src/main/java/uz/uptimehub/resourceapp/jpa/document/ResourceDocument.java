@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class ResourceDocument {
     @Field(type = FieldType.Text)
     private String searchableText;
 
-    @Field(type = FieldType.Date)
-    private LocalDateTime indexedAt;
+    @Field(type = FieldType.Date, format = DateFormat.date_optional_time)
+    private Instant indexedAt;
 
 }
