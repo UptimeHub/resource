@@ -2,11 +2,13 @@ package uz.uptimehub.resourceapp.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.stereotype.Service;
+import uz.uptimehub.resourceapp.exception.ElasticsearchUnavailableException;
 import uz.uptimehub.resourceapp.jpa.document.ResourceDocument;
 import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 import uz.uptimehub.resourceapp.jpa.repository.ResourceRepository;
@@ -24,38 +26,50 @@ public class ResourceIndexService {
     private final ResourceMapper mapper;
 
     public void indexById(UUID resourceId) {
-        repository.findByIdWithResourceType(resourceId)
-                .map(mapper::toDocument)
-                .ifPresentOrElse(
-                        elasticsearchOperations::save,
-                        () -> {
-                            log.warn("Resource not found during indexing. resourceId={}", resourceId);
-                            elasticsearchOperations.delete(resourceId.toString(), ResourceDocument.class);
-                        }
-                );
+        try {
+            repository.findByIdWithResourceType(resourceId)
+                    .map(mapper::toDocument)
+                    .ifPresentOrElse(
+                            elasticsearchOperations::save,
+                            () -> {
+                                log.warn("Resource not found during indexing. resourceId={}", resourceId);
+                                elasticsearchOperations.delete(resourceId.toString(), ResourceDocument.class);
+                            }
+                    );
+        } catch (DataAccessException ex) {
+            log.warn("Failed to index resource in Elasticsearch. resourceId={}", resourceId, ex);
+        }
 
     }
 
     public void deleteById(UUID resourceId) {
-        elasticsearchOperations.delete(resourceId.toString(), ResourceDocument.class);
+        try {
+            elasticsearchOperations.delete(resourceId.toString(), ResourceDocument.class);
+        } catch (DataAccessException ex) {
+            log.warn("Failed to delete resource from Elasticsearch. resourceId={}", resourceId, ex);
+        }
     }
 
     public long reindexAll() {
-        recreateIndex();
+        try {
+            recreateIndex();
 
-        long indexedCount = 0;
-        int pageNumber = 0;
-        Page<Resource> page;
+            long indexedCount = 0;
+            int pageNumber = 0;
+            Page<Resource> page;
 
-        do {
-            page = repository.findAllBy(PageRequest.of(pageNumber, 500));
-            elasticsearchOperations.save(page.map(mapper::toDocument));
-            indexedCount += page.getNumberOfElements();
-            pageNumber++;
-        } while (page.hasNext());
+            do {
+                page = repository.findAllBy(PageRequest.of(pageNumber, 500));
+                elasticsearchOperations.save(page.map(mapper::toDocument));
+                indexedCount += page.getNumberOfElements();
+                pageNumber++;
+            } while (page.hasNext());
 
-        log.info("Reindexed resources. indexedCount={}", indexedCount);
-        return indexedCount;
+            log.info("Reindexed resources. indexedCount={}", indexedCount);
+            return indexedCount;
+        } catch (DataAccessException ex) {
+            throw new ElasticsearchUnavailableException("Elasticsearch is unavailable. Reindex could not be completed.", ex);
+        }
     }
 
     private void recreateIndex() {

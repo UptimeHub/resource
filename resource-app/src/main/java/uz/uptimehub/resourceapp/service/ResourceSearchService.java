@@ -2,6 +2,7 @@ package uz.uptimehub.resourceapp.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 import uz.uptimehub.resource.dto.resource.ResourceDto;
 import uz.uptimehub.resource.dto.resource.ResourceFilter;
+import uz.uptimehub.resourceapp.exception.ElasticsearchUnavailableException;
 import uz.uptimehub.resourceapp.jpa.document.ResourceDocument;
 import uz.uptimehub.resourceapp.mapper.ResourceMapper;
 
@@ -33,13 +35,17 @@ public class ResourceSearchService {
                 .withPageable(normalizePageable(pageable))
                 .build();
 
-        SearchHits<ResourceDocument> hits = elasticsearchOperations.search(query, ResourceDocument.class);
-        List<ResourceDto> content = hits.getSearchHits().stream()
-                .map(SearchHit::getContent)
-                .map(resourceMapper::toDto)
-                .toList();
+        try {
+            SearchHits<ResourceDocument> hits = elasticsearchOperations.search(query, ResourceDocument.class);
+            List<ResourceDto> content = hits.getSearchHits().stream()
+                    .map(SearchHit::getContent)
+                    .map(resourceMapper::toDto)
+                    .toList();
 
-        return new PageImpl<>(content, pageable, hits.getTotalHits());
+            return new PageImpl<>(content, pageable, hits.getTotalHits());
+        } catch (DataAccessException ex) {
+            throw new ElasticsearchUnavailableException("Elasticsearch is unavailable. Resource search could not be completed.", ex);
+        }
     }
 
     public boolean supports(ResourceFilter filter) {

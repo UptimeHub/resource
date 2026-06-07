@@ -15,6 +15,7 @@ import uz.uptimehub.core.exception.EntityAlreadyExistsException;
 import uz.uptimehub.core.exception.EntityNotFoundException;
 import uz.uptimehub.core.exception.InvalidSortRule;
 import uz.uptimehub.resource.dto.exception.RequiredSpecificationNotAvailableException;
+import uz.uptimehub.resourceapp.exception.ElasticsearchUnavailableException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
@@ -142,6 +143,22 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 "NOT_FOUND",
                 "Resource not found",
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(ElasticsearchUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleElasticsearchUnavailable(
+            ElasticsearchUnavailableException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Elasticsearch operation failed: {}", ex.getMessage(), ex);
+
+        return buildResponse(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "ELASTICSEARCH_UNAVAILABLE",
+                ex.getMessage(),
                 request.getRequestURI(),
                 null
         );
