@@ -49,6 +49,9 @@ springdoc:
       scopes: openid profile email
 
 management:
+  health:
+    elasticsearch:
+      enabled: false
   endpoints:
     web:
       exposure:
