@@ -2,6 +2,7 @@ package uz.uptimehub.resourceapp.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
@@ -21,18 +23,23 @@ import uz.uptimehub.resourceapp.mapper.ResourceMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ResourceSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ResourceMapper resourceMapper;
 
     public Page<ResourceDto> search(ResourceFilter filter, Pageable pageable) {
+        ensureIndexExists();
+
+        Pageable elasticsearchPageable = normalizePageable(pageable);
         NativeQuery query = NativeQuery.builder()
                 .withQuery(buildQuery(filter))
-                .withPageable(normalizePageable(pageable))
+                .withPageable(elasticsearchPageable)
                 .build();
 
         try {
@@ -44,6 +51,7 @@ public class ResourceSearchService {
 
             return new PageImpl<>(content, pageable, hits.getTotalHits());
         } catch (DataAccessException ex) {
+            log.warn("Elasticsearch resource search failed. rootCause={}", rootCauseMessage(ex), ex);
             throw new ElasticsearchUnavailableException("Elasticsearch is unavailable. Resource search could not be completed.", ex);
         }
     }
@@ -84,30 +92,71 @@ public class ResourceSearchService {
     }
 
     private Pageable normalizePageable(Pageable pageable) {
-        if (pageable == null || pageable.isUnpaged() || pageable.getSort().isUnsorted()) {
+        if (pageable == null || pageable.isUnpaged()) {
             return pageable;
         }
 
         List<Sort.Order> orders = pageable.getSort().stream()
-                .map(order -> new Sort.Order(order.getDirection(), normalizeSortProperty(order.getProperty())))
+                .map(order -> normalizeSortProperty(order.getProperty())
+                        .map(property -> new Sort.Order(order.getDirection(), property))
+                )
+                .flatMap(Optional::stream)
                 .toList();
 
-        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(orders));
+        Sort sort = orders.isEmpty() ? Sort.unsorted() : Sort.by(orders);
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
     }
 
-    private String normalizeSortProperty(String property) {
+    private Optional<String> normalizeSortProperty(String property) {
         if (property == null) {
-            return property;
+            return Optional.empty();
         }
         if (property.startsWith("r.")) {
             property = property.substring(2);
         }
+        if ("id".equals(property)) {
+            return Optional.of("resourceId");
+        }
+        if ("organizationId".equals(property)) {
+            return Optional.of("organizationId");
+        }
         if ("typeId".equals(property)) {
-            return "resourceTypeId";
+            return Optional.of("resourceTypeId");
+        }
+        if ("resourceTypeId".equals(property)) {
+            return Optional.of("resourceTypeId");
+        }
+        if ("status".equals(property)) {
+            return Optional.of("status");
         }
         if ("name".equals(property)) {
-            return "name.keyword";
+            return Optional.of("name.keyword");
         }
-        return property;
+        if ("indexedAt".equals(property)) {
+            return Optional.of("indexedAt");
+        }
+
+        log.debug("Ignoring unsupported Elasticsearch sort property: {}", property);
+        return Optional.empty();
+    }
+
+    private void ensureIndexExists() {
+        try {
+            IndexOperations indexOperations = elasticsearchOperations.indexOps(ResourceDocument.class);
+            if (!indexOperations.exists()) {
+                indexOperations.create();
+                indexOperations.putMapping(indexOperations.createMapping(ResourceDocument.class));
+            }
+        } catch (DataAccessException ex) {
+            throw new ElasticsearchUnavailableException("Elasticsearch is unavailable. Resource search could not be completed.", ex);
+        }
+    }
+
+    private String rootCauseMessage(Throwable throwable) {
+        Throwable root = throwable;
+        while (root.getCause() != null) {
+            root = root.getCause();
+        }
+        return root.getMessage();
     }
 }
