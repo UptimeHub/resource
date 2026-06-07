@@ -13,6 +13,30 @@ spring:
     password: ${DB_PASSWORD:0909}
     driver-class-name: org.postgresql.Driver
 
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
+    producer:
+      properties:
+        transaction.timeout.ms: ${KAFKA_TRANSACTION_TIMEOUT:60000}
+        spring.json.trusted.packages: uz.uptimehub.resource.kafka.dto
+      key-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+    consumer:
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      group-id: resource
+      auto-offset-reset: earliest
+      isolation-level: read_committed
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      max-poll-records: 10000
+
+app:
+  kafka:
+    concurrency: 1
+    topics:
+      resource-index: ${KAFKA_TOPIC_RESOURCE_INDEX:resource.resource-index}
 
 springdoc:
   swagger-ui:

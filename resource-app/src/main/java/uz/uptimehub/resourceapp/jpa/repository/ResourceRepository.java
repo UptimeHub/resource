@@ -2,15 +2,14 @@ package uz.uptimehub.resourceapp.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import uz.uptimehub.resource.dto.Status;
 import uz.uptimehub.resource.dto.resource.ResourceStatus;
 import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -35,5 +34,15 @@ public interface ResourceRepository extends JpaRepository<Resource, UUID> {
     );
 
 
-        Optional<Resource> findByIdAndOrganizationId(UUID id, UUID organizationId);
+    Optional<Resource> findByIdAndOrganizationId(UUID id, UUID organizationId);
+
+    @Query("""
+            select r from Resource r
+            join fetch r.resourceType
+            where r.id = :resourceId
+            """)
+    Optional<Resource> findByIdWithResourceType(UUID resourceId);
+
+    @EntityGraph(attributePaths = "resourceType")
+    Page<Resource> findAllBy(Pageable pageable);
 }

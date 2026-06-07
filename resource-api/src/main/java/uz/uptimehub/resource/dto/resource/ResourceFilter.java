@@ -26,6 +26,8 @@ public class ResourceFilter extends Filter {
     @Schema(description = "Resource name to filter by a specific resource name")
     @SortPropertyOverride("r.name")
     private String name;
+    @Schema(description = "Full-text search term for resource name, description, and searchable specifications")
+    private String search;
     @Schema(description = "Resource type ID to filter resources by their type")
     @SortPropertyOverride("r.typeId")
     private Long resourceTypeId;

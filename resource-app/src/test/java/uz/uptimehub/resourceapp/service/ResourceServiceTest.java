@@ -11,6 +11,7 @@ import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 import uz.uptimehub.resourceapp.jpa.entity.resource.ResourceType;
 import uz.uptimehub.resourceapp.jpa.repository.ResourceRepository;
 import uz.uptimehub.resourceapp.jpa.repository.ResourceTypeRepository;
+import uz.uptimehub.resourceapp.kafka.producer.ResourceIndexEventProducer;
 import uz.uptimehub.resourceapp.mapper.ResourceMapper;
 
 import java.util.List;
@@ -38,7 +39,9 @@ class ResourceServiceTest {
         resourceService = new ResourceService(
                 resourceRepository,
                 mock(ResourceTypeRepository.class),
-                resourceMapper
+                resourceMapper,
+                mock(ResourceIndexEventProducer.class),
+                mock(ResourceSearchService.class)
         );
         resourceService.permissionsHeader = "X-Auth-Permissions";
     }

@@ -9,12 +9,15 @@ import uz.uptimehub.core.exception.InvalidSortRule;
 import uz.uptimehub.core.pagination.FilteredSortedPaginatedRequest;
 import uz.uptimehub.core.utils.AuthHeaderUtils;
 import uz.uptimehub.resource.dto.exception.RequiredSpecificationNotAvailableException;
+import uz.uptimehub.resource.dto.kafka.dto.IndexType;
+import uz.uptimehub.resource.dto.kafka.dto.ResourceIndexEvent;
 import uz.uptimehub.resource.dto.resource.*;
 import uz.uptimehub.resource.dto.resourcetype.SpecificationDefinition;
 import uz.uptimehub.resourceapp.jpa.entity.resource.Resource;
 import uz.uptimehub.resourceapp.jpa.entity.resource.ResourceType;
 import uz.uptimehub.resourceapp.jpa.repository.ResourceRepository;
 import uz.uptimehub.resourceapp.jpa.repository.ResourceTypeRepository;
+import uz.uptimehub.resourceapp.kafka.producer.ResourceIndexEventProducer;
 import uz.uptimehub.resourceapp.mapper.ResourceMapper;
 
 import java.util.*;
@@ -39,6 +42,8 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
     private final ResourceRepository resourceRepository;
     private final ResourceTypeRepository resourceTypeRepository;
     private final ResourceMapper resourceMapper;
+    private final ResourceIndexEventProducer resourceIndexEventProducer;
+    private final ResourceSearchService resourceSearchService;
 
     /**
      * Creates and persists a new resource.
@@ -60,7 +65,10 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
 
         assertRequiredSpecificationsExistence(request, specificationDefinitions);
 
-        return resourceMapper.toDetailedDto(resourceRepository.save(resourceMapper.toEntity(request, resourceType)));
+        Resource resource = resourceRepository.save(resourceMapper.toEntity(request, resourceType));
+
+        resourceIndexEventProducer.publish(new ResourceIndexEvent(resource.getId(), IndexType.CREATED));
+        return resourceMapper.toDetailedDto(resource);
     }
 
     /**
@@ -81,6 +89,8 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         assertRequiredSpecificationsExistence(specificationValues, resource.getResourceType().getSpecificationDefinitions());
 
         resourceRepository.save(resourceMapper.updateFromDto(resourceData, resource));
+
+        resourceIndexEventProducer.publish(new ResourceIndexEvent(resource.getId(), IndexType.UPDATED));
     }
 
     /**
@@ -95,6 +105,10 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
      */
     @Override
     public Page<ResourceDto> findAll(FilteredSortedPaginatedRequest<ResourceFilter, InvalidSortRule> filter) {
+        if (resourceSearchService.supports(filter.getFilter())) {
+            return resourceSearchService.search(filter.getFilter(), filter.getPageable());
+        }
+
         return resourceRepository.findAllFiltered(
                 filter.getFilter().getId(),
                 filter.getFilter().getOrganizationId(),
