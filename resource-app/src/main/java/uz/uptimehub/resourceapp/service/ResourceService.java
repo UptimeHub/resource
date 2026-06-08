@@ -63,7 +63,7 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
 
         List<SpecificationDefinition> specificationDefinitions = resourceType.getSpecificationDefinitions();
 
-        assertRequiredSpecificationsExistence(request, specificationDefinitions);
+        assertRequiredSpecificationsExistence(request.getSpecificationValues(), specificationDefinitions);
 
         Resource resource = resourceRepository.save(resourceMapper.toEntity(request, resourceType));
 
@@ -181,27 +181,6 @@ public class ResourceService extends CommonService<ResourceCreateRequest, Resour
         }
 
         filter.setStatus(ResourceStatus.PUBLISHED);
-    }
-
-    /**
-     * Validates that all required specifications defined for a resource type are present in
-     * the creation request.
-     *
-     * <p>Steps:
-     * <ol>
-     *   <li>Collect required specification names from the provided type definitions.</li>
-     *   <li>Verify each required key exists in {@code request.specificationValues}.</li>
-     * </ol>
-     *
-     * @param request the resource creation request containing incoming specification values
-     * @param specificationDefinitions the list of specification definitions for the resource type, including which specifications are required
-     * @throws RequiredSpecificationNotAvailableException if any required specification is missing from the request's specification values
-     * @see ResourceCreateRequest#getSpecificationValues()
-     * @see SpecificationDefinition#getRequired()
-     * @see RequiredSpecificationNotAvailableException */
-    private void assertRequiredSpecificationsExistence(ResourceCreateRequest request, List<SpecificationDefinition> specificationDefinitions) {
-
-        assertRequiredSpecificationsExistence(request.getSpecificationValues(), specificationDefinitions);
     }
 
     private void assertRequiredSpecificationsExistence(Map<String, Object> specificationValues, List<SpecificationDefinition> specificationDefinitions) {

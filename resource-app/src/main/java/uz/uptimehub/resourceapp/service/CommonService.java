@@ -1,8 +1,8 @@
 package uz.uptimehub.resourceapp.service;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import uz.uptimehub.core.exception.InvalidSortRule;
 import uz.uptimehub.core.pagination.Filter;
 import uz.uptimehub.core.pagination.FilteredSortedPaginatedRequest;
